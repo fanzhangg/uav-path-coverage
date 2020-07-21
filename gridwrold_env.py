@@ -3,6 +3,8 @@ from gym.utils import seeding
 from gym import spaces
 import numpy as np
 from enum import IntEnum
+from copy import deepcopy
+from tabulate import tabulate
 
 
 class Board:
@@ -85,8 +87,8 @@ class GridworldEnv(gym.Env):
         # Actions are discrete integer values
         self.action_space = spaces.Discrete(4)
         # Observations are number of cells
-        self.observation_space = spaces.Box(low=0, high=self.size,
-                                            shape=(1,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-1, high=2,
+                                            shape=(self.size, ), dtype=np.int)
 
         # Initialize the state
         self.reset()
@@ -106,11 +108,15 @@ class GridworldEnv(gym.Env):
         self.board = Board(self.width, self.height)
         self.board.set(h, w)
 
+        board = deepcopy(self.board.data)
+        board[0, 0] = -1
+        board = board.flatten()
+
         # Step count since episode start
         self.steps = [(0, 0)]
 
         # Return first observation
-        return self.agent_pos, self.board
+        return board.flatten()
 
     def seed(self, seed=1337):
         """
@@ -134,21 +140,42 @@ class GridworldEnv(gym.Env):
         elif action == self.actions.down:
             i += 1
 
-        if not self.board.is_valid(i, j):   # New position out of bound
-            return (self.agent_pos, self.board), -1, done, {}
 
+        if not self.board.is_valid(i, j):   # New position out of bound
+            return self.board.data.flatten(), -1, False, {}
+
+        self.agent_pos = (i, j)
         # Update the step information
         self.steps.append((i, j))
-        if self.board.get(i, j) >= 1:   # The grid has been visited
-            return (i, j), -10, True, {}
+        self.board.set(i, j)
+        board = deepcopy(self.board.data)
+        board[i, j] = -1
+        board = board.flatten()
+
+        if self.board.get(i, j) > 1:   # The grid has been visited
+            return board, -10, True, {}
         elif len(self.steps) == self.size:  # All grids has been visited once
-            return (i, j), 10, True, {}
+            return board, 10, True, {}
         else:   # The grid has not been visited
-            return (i, j), 1, False, {}
+            return board, 1, False, {}
 
     def render(self, mode='human', close=False):
         print("board:")
         print(self.board.data)
-        print("path:", self.steps)
+        print("path:", self.get_path())
         print("pos:", self.agent_pos)
+        print("")
+
+    def get_path(self):
+        """
+        Get the path on the field
+        :return:
+        """
+        board = np.zeros((self.height, self.width), dtype=np.int)
+        for index, pos in enumerate(self.steps):
+            i, j = pos
+            board[i, j] = index
+
+        table = tabulate(board)
+        return table
 
