@@ -129,6 +129,7 @@ class GridworldEnv(gym.Env):
         done = False
 
         # Get the coordinate for the new position
+        prev_i, prev_j = self.agent_pos
         i, j = self.agent_pos
 
         if action == self.actions.left:
@@ -140,9 +141,11 @@ class GridworldEnv(gym.Env):
         elif action == self.actions.down:
             i += 1
 
-
         if not self.board.is_valid(i, j):   # New position out of bound
-            return self.board.data.flatten(), -1, False, {}
+            board = deepcopy(self.board.data)
+            board[prev_i, prev_j] = -1
+            board = board.flatten()
+            return board, -1, False, {}
 
         self.agent_pos = (i, j)
         # Update the step information
@@ -153,9 +156,9 @@ class GridworldEnv(gym.Env):
         board = board.flatten()
 
         if self.board.get(i, j) > 1:   # The grid has been visited
-            return board, -10, True, {}
-        elif len(self.steps) == self.size:  # All grids has been visited once
-            return board, 10, True, {}
+            return board, 0, True, {}
+        elif len(self.steps) >= self.size:  # All grids has been visited once
+            return board, 100000, True, {}
         else:   # The grid has not been visited
             return board, 1, False, {}
 
