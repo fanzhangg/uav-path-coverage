@@ -113,10 +113,10 @@ class GridworldEnv(gym.Env):
 
         self.board = Board(self.width, self.height)
         self.board.set(0, 0)
-        self.board.set(self.width - 1, self.height - 1)
+        self.board.set(self.height - 1, self.width - 1)
 
         # Step count since episode start
-        self.all_steps = [[(0, 0)], [(self.width - 1, self.height - 1)]]
+        self.all_steps = [[(0, 0)], [(self.height - 1, self.width - 1)]]
 
         # Return first observation
         return np.array([0, 0, self.height - 1, self.width - 1])
@@ -164,13 +164,20 @@ class GridworldEnv(gym.Env):
         if is_visited:  # Is visited
             return self.get_obs_space(), 0, True, {}
         elif self.board.is_filled():  # All grids has been visited once
+            self._write_path()
             return self.get_obs_space(), 100000, True, {}
         else:   # The grid has not been visited
             return self.get_obs_space(), 1, False, {}
 
+    def _write_path(self):
+        with open("path.txt", "w") as fhand:
+            path = self.get_path()
+            fhand.write(path)
+
     def render(self, mode='human', close=False):
         print("board:")
         print(self.board.data)
+        print("steps:", self.all_steps)
         print("path:", self.get_path())
         print("pos:", self.agent_positions)
         print("")
@@ -181,13 +188,15 @@ class GridworldEnv(gym.Env):
         :return:
         """
         tables = ""
-        for steps in self.all_steps:
-            board = np.zeros((self.height, self.width), dtype=np.int)
-            for index, pos in enumerate(steps):
-                i, j = pos
-                board[i, j] = index
-            table = tabulate(board)
-            tables += "\n"
-            tables += table
-        return tables
+        board = [[None for _ in range(self.width)] for _ in range(self.height)]
+        steps = self.all_steps[0]
+        for index, pos in enumerate(steps):
+            i, j = pos
+            board[i][j] = f"({index})"
+
+        steps = self.all_steps[1]
+        for index, pos in enumerate(steps):
+            i, j = pos
+            board[i][j] = f"[{index}]"
+        return tabulate(board)
 

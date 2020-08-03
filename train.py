@@ -1,4 +1,4 @@
-from gridwrold_env import GridworldEnv
+from gridwrold_env_multi import GridworldEnv
 from stable_baselines.common.env_checker import check_env
 from stable_baselines import DQN, PPO2, A2C, ACKTR
 from stable_baselines.common.cmd_util import make_vec_env
@@ -58,6 +58,9 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
 
         return True
 
+# configurations
+w = 8
+h = 8
 
 # Create log dir
 log_dir = "/tmp/gym/"
@@ -66,18 +69,19 @@ os.makedirs(log_dir, exist_ok=True)
 # Create the callback: check every 1000 steps
 callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=log_dir)
 # Init Env
-env = GridworldEnv(4, 3)
+env = GridworldEnv(w, h)
 env = Monitor(env, log_dir)
 check_env(env, warn=True)
 # Wrap it
 env = make_vec_env(lambda: env, n_envs=1)
 
 # Train the agent
-model = ACKTR('MlpPolicy', env, verbose=1).learn(50000, callback=callback)
+model = ACKTR('MlpPolicy', env, verbose=1).learn(600000, callback=callback)
 
 # Test the trained agent
 obs = env.reset()
-n_steps = 40
+n_steps = w * h // 2
+
 for step in range(n_steps):
     action, _ = model.predict(obs, deterministic=True)
     print("Step {}".format(step + 1))
