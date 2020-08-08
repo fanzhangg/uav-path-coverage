@@ -61,7 +61,7 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
 
 # configurations
 w = 6
-h = 7
+h = 6
 
 # Create log dir
 log_dir = "/tmp/gym/"
@@ -77,7 +77,7 @@ check_env(env, warn=True)
 env = make_vec_env(lambda: env, n_envs=1)
 
 # Train the agent
-model = ACKTR('MlpPolicy', env, verbose=1).learn(500000, callback=callback)
+model = ACKTR('MlpPolicy', env, verbose=1).learn(100000, callback=callback)
 
 # Test the trained agent
 obs = env.reset()

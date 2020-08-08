@@ -1,4 +1,4 @@
-from gridwrold_env_multi import GridworldEnv
+from gridwrold_env_multi_circle_3 import GridworldEnv
 from stable_baselines.common.env_checker import check_env
 from stable_baselines import DQN, PPO2, A2C, ACKTR
 from stable_baselines.common.cmd_util import make_vec_env
@@ -59,8 +59,8 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
         return True
 
 # configurations
-w = 8
-h = 8
+w = 6
+h = 6
 
 # Create log dir
 log_dir = "/tmp/gym/"
@@ -76,7 +76,7 @@ check_env(env, warn=True)
 env = make_vec_env(lambda: env, n_envs=1)
 
 # Train the agent
-model = ACKTR('MlpPolicy', env, verbose=1).learn(600000, callback=callback)
+model = ACKTR('MlpPolicy', env, verbose=1).learn(100000, callback=callback)
 
 # Test the trained agent
 obs = env.reset()
