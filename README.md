@@ -20,3 +20,7 @@ This program is for planing coverage path for a single or multiple drones on a d
   - `pip install tabulate`
   
  
+## Training
+
+- Import the specific environment in traning.py
+- `python3 training.py`
