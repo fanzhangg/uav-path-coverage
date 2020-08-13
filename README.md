@@ -2,6 +2,14 @@
 
 This program is for planing coverage path for a single or multiple drones on a discrete gridworld.
 
+![2 Drones Coverage Path on 10x10 Field](src/coverage_animation.gif)
+
+*2 Drones Coverage Path Animation*
+
+![Training Plot over Episode of 2 drones on 10x10 Feild](src/training_plot.png)
+
+*Training Plot over Episode of 2 drones on 10x10 Feild*
+
 ## Installation
 
 - Install [stable-baseline](https://stable-baselines.readthedocs.io/en/master/index.html)
