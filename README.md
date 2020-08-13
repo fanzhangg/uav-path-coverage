@@ -1,4 +1,4 @@
-# uav-path-coverage
+# UAV Coverage Path Planning for single/multi drones
 
 This program is for planing coverage path for a single or multiple drones on a discrete gridworld.
 
